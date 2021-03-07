@@ -21,7 +21,7 @@
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/bootstrap.min.js
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/propeller.min.js
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/popper.min.js
-// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/ZP_config.js?v=0.49
+// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/ZP_config.js?v=0.50
 // @resource    css_tooltip https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/tooltip.css?v=13
 // @resource    css_bs https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/bootstrap.min.css
 // @resource    css_prop https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/propeller.min.css
