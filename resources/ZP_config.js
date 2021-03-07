@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        ZP_config
-// @version     0.48
+// @version     0.49
 // @grant       GM_setValue
 // @grant		GM_getValue
 // ==/UserScript==
@@ -79,7 +79,7 @@ var ZP_config = function () {
             /*		if (GM_getValue(key + "/type") == "object") {
                         value = JSON.parse(value);
                     }*/
-            s = config.settings[key];
+            const s = config.settings[key];
             if (s.type === 'array') {
                 value = value.replace(", ", ",").replace(" ,", ",");
                 value = value.split(',');
