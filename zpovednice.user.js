@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name        ZpovedniceTool+adm
-// @version     0.9.6
+// @version     0.9.7
 // @description Tools for zpovednice.cz - the admin version
 // @namespace   zpovednice
 // @author      Muad*Dib
 // @icon        https://zpovednice.cz/favicon.ico
-// @updateURL   https://github.com/MuadDibUsul/zp_front_gm/raw/admin/Zpovednice.user.js
-// @downloadURL https://github.com/MuadDibUsul/zp_front_gm/raw/admin/Zpovednice.user.js
+// @updateURL   https://github.com/MuadDibUsul/ZpovedniceTool/raw/admin/zpovednice.user.js
+// @downloadURL https://github.com/MuadDibUsul/ZpovedniceTool/raw/admin/zpovednice.user.js
 // @include     http://zpovednice.cz/*
 // @include     http://*.zpovednice.cz/*
 // @include     http://www.zpovednice.cz/*
@@ -17,16 +17,16 @@
 // @include     https://www.zpovednice.cz/*
 // @include     https://www.zpovednice.eu/*
 // @include     https://zpovednice.eu/*
-// @require     https://raw.githubusercontent.com/MuadDibUsul/zp_front_gm/main/resources/jquery-3.2.1.min.js
-// @require     https://raw.githubusercontent.com/MuadDibUsul/zp_front_gm/main/resources/bootstrap.min.js
-// @require     https://raw.githubusercontent.com/MuadDibUsul/zp_front_gm/main/resources/propeller.min.js
-// @require     https://raw.githubusercontent.com/MuadDibUsul/zp_front_gm/main/resources/popper.min.js
-// @require     https://raw.githubusercontent.com/MuadDibUsul/zp_front_gm/main/resources/ZP_config.js?v=48
-// @resource    css_tooltip https://raw.githubusercontent.com/MuadDibUsul/zp_front_gm/main/resources/tooltip.css?v=13
-// @resource    css_bs https://raw.githubusercontent.com/MuadDibUsul/zp_front_gm/main/resources/bootstrap.min.css
-// @resource    css_prop https://raw.githubusercontent.com/MuadDibUsul/zp_front_gm/main/resources/propeller.min.css
-// @resource    dialog_css https://raw.githubusercontent.com/MuadDibUsul/zp_front_gm/main/resources/dialog.css?v=1
-// @resource    config_css https://raw.githubusercontent.com/MuadDibUsul/zp_front_gm/main/resources/config.css?v=8
+// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/raw/admin/resources/jquery-3.2.1.min.js
+// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/raw/admin/resources/bootstrap.min.js
+// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/raw/admin/resources/propeller.min.js
+// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/raw/admin/resources/popper.min.js
+// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/raw/admin/resources/ZP_config.js?v=48
+// @resource    css_tooltip https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/raw/admin/resources/tooltip.css?v=13
+// @resource    css_bs https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/raw/admin/resources/bootstrap.min.css
+// @resource    css_prop https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/raw/admin/resources/propeller.min.css
+// @resource    dialog_css https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/raw/admin/resources/dialog.css?v=1
+// @resource    config_css https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/raw/admin/resources/config.css?v=8
 // @grant       unsafeWindow
 // @grant       GM_addStyle
 // @grant       GM_getResourceText
