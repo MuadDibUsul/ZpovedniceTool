@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        ZpovedniceTool+adm
-// @version     1.0.2
+// @version     1.0.3
 // @description Tools for zpovednice.cz - the admin version
 // @namespace   zpovednice
 // @author      Muad*Dib
@@ -129,31 +129,33 @@ const func={
     function func_ignoreNicks()
     {
         for (var i = 0; i < ignoreNicks.length; i++) {
-            var element = $(".signnick:contains('" + ignoreNicks[i] + "')").closest("table").closest("tr").prev().prev();
-            for (var el of element) {
-                if (el && el[0]) el = el[0];
-                if (el.children && el.children[0].className == "sectlheader") {
-                    $(el).hide();
-                    el = el.nextElementSibling;
-                    while (el != null && el.children[0].className != "sectlheader") {
+            if (ignoreNicks[i].length > 0) {
+                var element = $(".signnick:contains('" + ignoreNicks[i] + "')").closest("table").closest("tr").prev().prev();
+                for (var el of element) {
+                    if (el && el[0]) el = el[0];
+                    if (el.children && el.children[0].className == "sectlheader") {
                         $(el).hide();
                         el = el.nextElementSibling;
+                        while (el != null && el.children[0].className != "sectlheader") {
+                            $(el).hide();
+                            el = el.nextElementSibling;
+                        }
                     }
                 }
-            }
-            element = $(".signunreg:contains('" + ignoreNicks[i] + "')").closest("table").closest("tr").prev().prev();
-            for (el of element) {
-                if (el && el[0]) el = el[0];
-                if (el.children && el.children[0].className == "sectlheader") {
-                    el.hide();
-                    el = el.nextElementSibling;
-                    while (el != null && el.children[0].className != "sectlheader") {
-                        $(el).hide();
+                element = $(".signunreg:contains('" + ignoreNicks[i] + "')").closest("table").closest("tr").prev().prev();
+                for (el of element) {
+                    if (el && el[0]) el = el[0];
+                    if (el.children && el.children[0].className == "sectlheader") {
+                        el.hide();
                         el = el.nextElementSibling;
+                        while (el != null && el.children[0].className != "sectlheader") {
+                            $(el).hide();
+                            el = el.nextElementSibling;
+                        }
                     }
                 }
+                //    $('td.absoltext:visible:contains('+ ignore[i] +')').css('color',bgcolor);
             }
-    //    $('td.absoltext:visible:contains('+ ignore[i] +')').css('color',bgcolor);
         }
     }
 
@@ -188,7 +190,9 @@ const func={
     function func_highlightNicks()
     {
         for (var i = 0; i < highlightNicks.length; i++) {
-            $('td.absoltext:contains(' + highlightNicks[i] + ')').css('background', highlightColors[i]);
+            if (highlightNicks[i].length > 0) {
+                $('td.absoltext:contains(' + highlightNicks[i] + ')').css('background', highlightColors[i]);
+            }
         }
     }
 
