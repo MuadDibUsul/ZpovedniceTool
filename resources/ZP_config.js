@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        ZP_config
-// @version     0.52
+// @version     0.53
 // @grant       GM_setValue
 // @grant		GM_getValue
 // @grant       GM_deleteValue
@@ -145,6 +145,7 @@ var ZP_config = function () {
             const i = configs.indexOf(config.name);
             configs.splice(i, 1);
             setValue('configNames',configs);
+            GM_deleteValue('ZP/activeConfigName');
         }
         for (key in config.settings) {
             s = config.settings[key];
@@ -455,7 +456,7 @@ var ZP_config = function () {
                 class: "btn-default", event: {
                     click: function () {
                         if (confirm('Opravdu chces tento config smazat?')) {
-                            deleteConfig;
+                            deleteConfig();
                             close(true);
                         }
                     }
