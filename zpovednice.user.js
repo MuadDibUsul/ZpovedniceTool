@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        ZpovedniceTool+adm
-// @version     0.9.9
+// @version     1.0.2
 // @description Tools for zpovednice.cz - the admin version
 // @namespace   zpovednice
 // @author      Muad*Dib
@@ -16,12 +16,12 @@
 // @include     https://*.zpovednice.cz/*
 // @include     https://www.zpovednice.cz/*
 // @include     https://www.zpovednice.eu/*
-// @include     https://zpovednice.eu/*                
+// @include     https://zpovednice.eu/*
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/jquery-3.2.1.min.js
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/bootstrap.min.js
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/propeller.min.js
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/popper.min.js
-// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/ZP_config.js?v=0.50
+// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/ZP_config.js?v=0.51
 // @resource    css_tooltip https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/tooltip.css?v=13
 // @resource    css_bs https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/bootstrap.min.css
 // @resource    css_prop https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/propeller.min.css
@@ -61,6 +61,9 @@ const highlightColors = config['highlightColors'];
 // nicky, co ignorovat:
 const ignoreNicks = config['ignoreNicks'];
 
+// barvy zvyrazneni v listu
+const highlightListColors = config['highlightListColors'];
+
 const hideHeader = config['hideHeader'];
 
 if (highlightNicks.length != highlightColors.length) {
@@ -96,80 +99,211 @@ function makeMenu() {
     menu += '</select>';
     menu += '<input type="submit" style="margin-top:9; width: 138px" class="graybutt open-config" value="NASTAVENÍ">';
     menu += '<input type="submit" style="margin-top:9; width: 138px" class="graybutt open-config-admin" value="ADMIN NASTAVENÍ">';
-    menu += '<input type="submit" style="margin-top:9; width: 138px" class="graybutt open-about" value="ABOUT - ' + GM_info['version'] + '">';
+    menu += '<input type="submit" style="margin-top:9; width: 138px" class="graybutt open-about" value="ABOUT - v' + GM_info.script.version + '">';
     menu = '<div class="boxbackgr">' + menu + '</div>';
     return menu;
 }
 
-func_ignoreNicks();
-func_highlightNicks()
-func_deletedPictures()
+// funkce, ktere se daji vypnout, zapnout
+const func={
+
+// skryti hlavicky
+    function func_hideHeader()
+    {
+        if (location.pathname.includes('index.php') || $('div#ixleft').length) {
+            $('table')[0].remove();
+            $('table')[0].remove();
+            $('table')[0].remove();
+            $('#allhdr').remove();
+            $('#hdrlogo').remove();
+            $('#ixmidst').css('top', 0);
+            if (location.pathname.includes('index.php') || $('div#ixleft').length) {
+                $('#ixleft').css('top', 0);
+                $('#ixright').css('top', 0);
+                $('#spodek').css('height', 0);
+            }
+        }
+    }
+
+    // skrytí zpovedi ignorovanych uzivatelu
+    function func_ignoreNicks()
+    {
+        for (var i = 0; i < ignoreNicks.length; i++) {
+            var element = $(".signnick:contains('" + ignoreNicks[i] + "')").closest("table").closest("tr").prev().prev();
+            for (var el of element) {
+                if (el && el[0]) el = el[0];
+                if (el.children && el.children[0].className == "sectlheader") {
+                    $(el).hide();
+                    el = el.nextElementSibling;
+                    while (el != null && el.children[0].className != "sectlheader") {
+                        $(el).hide();
+                        el = el.nextElementSibling;
+                    }
+                }
+            }
+            element = $(".signunreg:contains('" + ignoreNicks[i] + "')").closest("table").closest("tr").prev().prev();
+            for (el of element) {
+                if (el && el[0]) el = el[0];
+                if (el.children && el.children[0].className == "sectlheader") {
+                    el.hide();
+                    el = el.nextElementSibling;
+                    while (el != null && el.children[0].className != "sectlheader") {
+                        $(el).hide();
+                        el = el.nextElementSibling;
+                    }
+                }
+            }
+    //    $('td.absoltext:visible:contains('+ ignore[i] +')').css('color',bgcolor);
+        }
+    }
+
+    // autologin
+    function func_autologin()
+    {
+        if ($('#logon').length) {
+            $('#logon input[name="nick"]').val(nick);
+            $('#logon input[name="heslo"]').val(pass);
+            $('#logon input[type="submit"]').click();
+        }
+    }
+
+    // zvyrazneni zpovedi v seznamu
+    function func_highlightList()
+    {
+        $('#conflist ul').each(function () {
+            if ($(this).find("li.c6 img").attr("src") == "grafika/zmarkv.gif") {
+                $(this).css("background", highlightListColors[0]);
+                $(this).css("display", "flex");
+                if ($(this).find("li.c5").html().includes(":")) {
+                    $(this).css("background", highlightListColors[1]);
+                }
+            } else if ($(this).find("li.c5").html().includes(":")) {
+                $(this).css("background", highlightListColors[2]);
+                $(this).css("display", "flex");
+            }
+        });
+    }
+
+    // zvyrazneni zpovedi se jmenem
+    function func_highlightNicks()
+    {
+        for (var i = 0; i < highlightNicks.length; i++) {
+            $('td.absoltext:contains(' + highlightNicks[i] + ')').css('background', highlightColors[i]);
+        }
+    }
+
+    // pictures
+    function func_pictures()
+    {
+        $(".signnick:visible,.signunreg:visible").each(function () {
+            var id_with_url = $(this).children("a").attr("href");
+            if (id_with_url) { // it can be undefined !
+                var ids = id_with_url.match(/\d+$/g); // last number of url, url is like profil.php?kdo=666
+                if (ids && 0 < ids.length) {
+                    var id = ids[0];
+                    $(this).parent().parent().parent().parent().parent().find(".absoltext").prepend('<img src="foto/id' + id + '.jpg" align="right" border=0 onerror="this.style.display=\'none\'" style="max-height:' + maxheight + ';max-width:' + maxwidth + ';display:block;margin-bottom: -30px;margin-right: -10px;">');
+                    $(this).parent().parent().parent().parent().parent().parent().find(".conftext").prepend('<img src="foto/id' + id + '.jpg" align="right" border=0 onerror="this.style.display=\'none\'" style="max-height:' + maxheight + ';max-width:' + maxwidth + ';display:block;margin-bottom: -30px;margin-right: -10px;">');
+                }
+            }
+            $(this).parent().parent().parent().parent().removeAttr('style');
+        });
+    }
+
+    // pictures of deleted users ;-)
+    function func_deletedPictures()
+    {
+        $("span.redhigh").each(function () {
+            if (this.innerText == "NENALEZENO - Profil uživatele byl smazán.") {
+                $(this).append("<span>");
+                $(this).find('span').append("<br /><br />");
+                let id = window.location.href.split("=")[1];
+                $(this).find('span').append('<img id="photo" src="foto/id' + id + '.jpg" border=0 onerror="this.style.display=\'none\'" style="display:block;margin-left:auto;margin-right:auto;width:50%">');
+            }
+        });
+        $('.signinfo').css('text-align', 'left');
+    }
+
+    // citace
+    function func_quoting()
+    {
+        var button_text = " cituj ";
+        var space_between;
+
+        $(".absoltext .signnick:visible,.absoltext .signunreg:visible").parent().parent().parent().parent().prepend('<a href="" class="doanswer">' + button_text + '</a>').find(".doanswer").click(
+            function (event) {
+                // get text
+                var text = $(event.currentTarget).parent().parent().prev().find(".absoltext").text();
+                doQuote(event, text);
+            }
+        );
+
+        $($(".signinfo .signnick:visible,.signinfo .signunreg:visible")[0]).parent().parent().parent().parent().prepend('<a href="" class="doanswer">' + button_text + '</a>').find(".doanswer").click(
+            function (event) {
+                // get text
+                var text = $(event.currentTarget).parent().parent().parent().prev().find(".conftext").text();
+                doQuote(event, text);
+            }
+        );
+    }
+
+    // rychla odpoved v profilu
+    function func_quickReply()
+    {
+        $('a[href*="deletek.php"').each(function () {
+            $(this).before('<a href="javascript:void(0);" class="replyToggle">&nbsp;ODPOVĚDĚT</a>&nbsp;&nbsp;');
+
+            var proID = "" + $(this).parent().parent().parent().parent().next().children('a').attr('href');
+            var proKoho = proID.replace(/\D/g, '');
+            var profilID = $('input[name="odid"]').attr('value');
+
+            var text = $(this).parent().parent().parent().parent().next().next().next();
+
+            var html = '';
+
+            html += '<div class="fastReply" style="display: none; margin-bottom: 5px;">';
+            html += '<center><form method="post" action="kontrolk.php" target="_blank">';
+            html += '<input type=hidden NAME=proid VALUE="' + proKoho + '">';
+            html += '<input type=hidden NAME=odid VALUE="' + profilID + '">';
+            html += '<textarea class="collect" rows="5" cols="80" name="body"></textarea>';
+            html += '<input type="submit" value="Odeslat zápis" class="replyMessage" />';
+            html += '</form></center>';
+            html += '</div>';
+
+            text.after(html);
+        });
+
+        $('.replyMessage').click(function () {
+            $('.replyToggle', $(this).parent().parent().parent().parent()).hide();
+            $(this).parent().parent().parent().hide();
+        });
+        $('.replyToggle').click(function () {
+            var div = $(this).parent().parent().parent().parent().parent().children('.fastReply');
+
+            var area = $('textarea', div);
+
+            div.toggle();
+            if (div.css('display') != 'none') {
+
+                setTimeout(function () {
+                    area.focus();
+
+                }, 100);
+            } else {
+                $(this).children('img').attr('src', imageArrowRight);
+            }
+        });
+    }
+
+}
+
+func.func_ignoreNicks();
+func.func_highlightNicks()
+func.func_deletedPictures()
 
 for (const key in config){
     if (key.startsWith('mod_') && config[key]){
-        const func = key.replace('mod_','func_');
-        this[func]();
-    }
-}
-
-// skryti hlavicky
-function func_hideHeader(){
-    if (location.pathname.includes('index.php') || $('div#ixleft').length) {
-        $('table')[0].remove();
-        $('table')[0].remove();
-        $('table')[0].remove();
-        $('#allhdr').remove();
-        $('#hdrlogo').remove();
-        $('#ixmidst').css('top', 0);
-        if (location.pathname.includes('index.php') || $('div#ixleft').length) {
-            $('#ixleft').css('top', 0);
-            $('#ixright').css('top', 0);
-            $('#spodek').css('height', 0);
-        }
-    }
-}
-
-
-// skrytí zpovedi ignorovanych uzivatelu
-function func_ignoreNicks()
-{
-    for (var i = 0; i < ignore.length; i++) {
-        var element = $(".signnick:contains('" + ignore[i] + "')").closest("table").closest("tr").prev().prev();
-        for (var el of element) {
-            if (el && el[0]) el = el[0];
-            if (el.children && el.children[0].className == "sectlheader") {
-                $(el).hide();
-                el = el.nextElementSibling;
-                while (el != null && el.children[0].className != "sectlheader") {
-                    $(el).hide();
-                    el = el.nextElementSibling;
-                }
-            }
-        }
-        element = $(".signunreg:contains('" + ignore[i] + "')").closest("table").closest("tr").prev().prev();
-        for (el of element) {
-            if (el && el[0]) el = el[0];
-            if (el.children && el.children[0].className == "sectlheader") {
-                el.hide();
-                el = el.nextElementSibling;
-                while (el != null && el.children[0].className != "sectlheader") {
-                    $(el).hide();
-                    el = el.nextElementSibling;
-                }
-            }
-        }
-//    $('td.absoltext:visible:contains('+ ignore[i] +')').css('color',bgcolor);
-    }
-}
-
-
-// autologin
-function func_autologin()
-{
-    if ($('#logon').length) {
-        $('#logon input[name="nick"]').val(nick);
-        $('#logon input[name="heslo"]').val(pass);
-        $('#logon input[type="submit"]').click();
+        const funcName = key.replace('mod_','func_');
+        func[funcName]();
     }
 }
 
@@ -207,84 +341,8 @@ if (['detail', 'profil'].indexOf(page) != -1) {
     );
 }
 
-// zvyrazneni zpovedi v seznamu
-function func_highlightList()
-{
-    $('#conflist ul').each(function () {
-        if ($(this).find("li.c6 img").attr("src") == "grafika/zmarkv.gif") {
-            $(this).css("background", "darkblue");
-            $(this).css("display", "flex");
-            if ($(this).find("li.c5").html().includes(":")) {
-                $(this).css("background", "blue");
-            }
-        } else if ($(this).find("li.c5").html().includes(":")) {
-            $(this).css("background", "darkslategrey");
-            $(this).css("display", "flex");
-        }
-    });
-}
 
-// zvyrazneni zpovedi se jmenem
-function func_highlightNicks()
-{
-    for (i = 0; i < highlightNicks.length; i++) {
-        $('td.absoltext:contains(' + highlightNicks[i] + ')').css('background', highlightColors[i]);
-    }
-}
 
-// pictures
-function func_pictures()
-{
-    $(".signnick:visible,.signunreg:visible").each(function () {
-        var id_with_url = $(this).children("a").attr("href");
-        if (id_with_url) { // it can be undefined !
-            var ids = id_with_url.match(/\d+$/g); // last number of url, url is like profil.php?kdo=666
-            if (ids && 0 < ids.length) {
-                var id = ids[0];
-                $(this).parent().parent().parent().parent().parent().find(".absoltext").prepend('<img src="foto/id' + id + '.jpg" align="right" border=0 onerror="this.style.display=\'none\'" style="max-height:' + maxheight + ';max-width:' + maxwidth + ';display:block;margin-bottom: -30px;margin-right: -10px;">');
-                $(this).parent().parent().parent().parent().parent().parent().find(".conftext").prepend('<img src="foto/id' + id + '.jpg" align="right" border=0 onerror="this.style.display=\'none\'" style="max-height:' + maxheight + ';max-width:' + maxwidth + ';display:block;margin-bottom: -30px;margin-right: -10px;">');
-            }
-        }
-        $(this).parent().parent().parent().parent().removeAttr('style');
-    });
-}
-
-// pictures of deleted users ;-)
-function func_deletedPictures()
-{
-    $("span.redhigh").each(function () {
-        if (this.innerText == "NENALEZENO - Profil uživatele byl smazán.") {
-            $(this).append("<span>");
-            $(this).find('span').append("<br /><br />");
-            let id = window.location.href.split("=")[1];
-            $(this).find('span').append('<img id="photo" src="foto/id' + id + '.jpg" border=0 onerror="this.style.display=\'none\'" style="display:block;margin-left:auto;margin-right:auto;width:50%">');
-        }
-    });
-    $('.signinfo').css('text-align', 'left');
-}
-
-// citace
-function func_quoting()
-{
-    var button_text = " cituj ";
-    var space_between;
-
-    $(".absoltext .signnick:visible,.absoltext .signunreg:visible").parent().parent().parent().parent().prepend('<a href="" class="doanswer">' + button_text + '</a>').find(".doanswer").click(
-        function (event) {
-            // get text
-            var text = $(event.currentTarget).parent().parent().prev().find(".absoltext").text();
-            doQuote(event, text);
-        }
-    );
-
-    $($(".signinfo .signnick:visible,.signinfo .signunreg:visible")[0]).parent().parent().parent().parent().prepend('<a href="" class="doanswer">' + button_text + '</a>').find(".doanswer").click(
-        function (event) {
-            // get text
-            var text = $(event.currentTarget).parent().parent().parent().prev().find(".conftext").text();
-            doQuote(event, text);
-        }
-    );
-}
 
 function doQuote(event, text) {
     var nickname = $(event.currentTarget).parent().find(".signunreg").text().trim();
@@ -294,9 +352,9 @@ function doQuote(event, text) {
     text = quoteTemplate.replace('{text}', text).replace('{nick}', nickname);
     // insert text
     if ($("textarea").val().length > 1) {
-        space_between = "\n\n"; // n-th reply
+        const space_between = "\n\n"; // n-th reply
     } else {
-        space_between = ""; // first reply
+        const space_between = ""; // first reply
     }
     $("textarea").val($("textarea").val() + space_between + text + "\n\n");
 
@@ -316,53 +374,6 @@ function replaceConfLinks(text) {
     return text.replace(/\b(\d{6})\b/g, '<a class="confLink" target="_blank" href="' + link + '/detail.php?statusik=$1">$1</a>');
 }
 
-// rychla odpoved v profilu
-function func_quickReply()
-{
-    $('a[href*="deletek.php"').each(function () {
-        $(this).before('<a href="javascript:void(0);" class="replyToggle">&nbsp;ODPOVĚDĚT</a>&nbsp;&nbsp;');
-
-        var proID = "" + $(this).parent().parent().parent().parent().next().children('a').attr('href');
-        var proKoho = proID.replace(/\D/g, '');
-        var profilID = $('input[name="odid"]').attr('value');
-
-        var text = $(this).parent().parent().parent().parent().next().next().next();
-
-        var html = '';
-
-        html += '<div class="fastReply" style="display: none; margin-bottom: 5px;">';
-        html += '<center><form method="post" action="kontrolk.php" target="_blank">';
-        html += '<input type=hidden NAME=proid VALUE="' + proKoho + '">';
-        html += '<input type=hidden NAME=odid VALUE="' + profilID + '">';
-        html += '<textarea class="collect" rows="5" cols="80" name="body"></textarea>';
-        html += '<input type="submit" value="Odeslat zápis" class="replyMessage" />';
-        html += '</form></center>';
-        html += '</div>';
-
-        text.after(html);
-    });
-
-    $('.replyMessage').click(function () {
-        $('.replyToggle', $(this).parent().parent().parent().parent()).hide();
-        $(this).parent().parent().parent().hide();
-    });
-    $('.replyToggle').click(function () {
-        var div = $(this).parent().parent().parent().parent().parent().children('.fastReply');
-
-        var area = $('textarea', div);
-
-        div.toggle();
-        if (div.css('display') != 'none') {
-
-            setTimeout(function () {
-                area.focus();
-
-            }, 100);
-        } else {
-            $(this).children('img').attr('src', imageArrowRight);
-        }
-    });
-}
 
 function getvar(varname) {
     console.log('getting var ' + varname + ' = ' + GM_getValue('zp_inner/' + varname));

@@ -1,8 +1,9 @@
 // ==UserScript==
 // @name        ZP_config
-// @version     0.50
+// @version     0.51
 // @grant       GM_setValue
 // @grant		GM_getValue
+// @grant       GM_deleteValue
 // ==/UserScript==
 
 var ZP_config = function () {
@@ -102,6 +103,11 @@ var ZP_config = function () {
         GM_setValue(key, value);
     }
 
+    function deleteValue(key){
+        key = config.name + "/" + key;
+        GM_deleteValue(key);
+    }
+
     function read() {
         var key, s;
         for (key in config.settings) {
@@ -116,8 +122,10 @@ var ZP_config = function () {
     function save() {
         var key, s;
         config.name = config.settings['configName'].value;
-        if (!config.settings.configNames.value.includes(config.name)) {
-            config.settings.configNames.value.push(config.name);
+        configs = getValue('configNames');
+        if (!configs.includes(config.name)) {
+            configs.push(config.name);
+            setValue('configNames',configs);
         }
         for (key in config.settings) {
             s = config.settings[key];
@@ -132,9 +140,11 @@ var ZP_config = function () {
     function deleteConfig() {
         var key, s;
         config.name = config.settings['configName'].value;
-        if (config.settings.configNames.value.includes(config.name)) {
-            const i = config.settings.configNames.value.indexOf(config.name);
-            config.settings.configNames.value.splice(i, 1);
+        configs = getValue('configNames');
+        if (configs.includes(config.name)) {
+            const i = configs.indexOf(config.name);
+            configs.splice(i, 1);
+            setValue('configNames',configs);
         }
         for (key in config.settings) {
             s = config.settings[key];
