@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        ZpovedniceTool+adm
-// @version     1.0.6
+// @version     1.0.7
 // @description Tools for zpovednice.cz - the admin version
 // @namespace   zpovednice
 // @author      Muad*Dib
@@ -21,7 +21,7 @@
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/bootstrap.min.js
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/propeller.min.js
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/popper.min.js
-// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/ZP_config.js?v=0.53
+// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/ZP_config.js?v=0.54
 // @resource    css_tooltip https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/tooltip.css?v=13
 // @resource    css_bs https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/bootstrap.min.css
 // @resource    css_prop https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/propeller.min.css
@@ -89,7 +89,7 @@ function makeMenu() {
     menu += '<option disabled>KONFIGURACE...</option>';
 
     const names = config['configNames'];
-    const active = getvar('ZP/activeConfigName') ?? names.length > 0 ? names[0] : 'default';
+    const active = GM_getValue('ZP/activeConfigName') ?? (names.length > 0 ? names[0] : 'default');
     for (const name of names) {
         var selected = "";
         if (name === active) selected = "selected = 'selected'";
@@ -496,7 +496,7 @@ $("#selectConfig").on("change", function (e) {
 
 function refreshMe(config) {
     if (config) {
-        setvar('ZP/activeConfigName', config);
+        GM_setValue('ZP/activeConfigName', config);
     }
     location.reload();
 }

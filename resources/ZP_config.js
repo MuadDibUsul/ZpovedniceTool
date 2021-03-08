@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        ZP_config
-// @version     0.53
+// @version     0.54
 // @grant       GM_setValue
 // @grant		GM_getValue
 // @grant       GM_deleteValue
@@ -268,7 +268,6 @@ var ZP_config = function () {
         if (saveFlag) {
             save();
             if (config.onclose) {
-                console.log('ZP_config.onclose');
                 config.onclose();
             }
         }
@@ -457,7 +456,10 @@ var ZP_config = function () {
                     click: function () {
                         if (confirm('Opravdu chces tento config smazat?')) {
                             deleteConfig();
-                            close(true);
+                            close();
+                            if (config.onclose) {
+                                config.onclose();
+                            }
                         }
                     }
                 }
