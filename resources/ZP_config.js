@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        ZP_config
-// @version     0.51
+// @version     0.52
 // @grant       GM_setValue
 // @grant		GM_getValue
 // @grant       GM_deleteValue
@@ -122,7 +122,7 @@ var ZP_config = function () {
     function save() {
         var key, s;
         config.name = config.settings['configName'].value;
-        configs = getValue('configNames');
+        const configs = getValue('configNames');
         if (!configs.includes(config.name)) {
             configs.push(config.name);
             setValue('configNames',configs);
@@ -140,7 +140,7 @@ var ZP_config = function () {
     function deleteConfig() {
         var key, s;
         config.name = config.settings['configName'].value;
-        configs = getValue('configNames');
+        const configs = getValue('configNames');
         if (configs.includes(config.name)) {
             const i = configs.indexOf(config.name);
             configs.splice(i, 1);

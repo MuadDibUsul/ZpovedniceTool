@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        ZpovedniceTool+adm
-// @version     1.0.4
+// @version     1.0.5
 // @description Tools for zpovednice.cz - the admin version
 // @namespace   zpovednice
 // @author      Muad*Dib
@@ -21,7 +21,7 @@
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/bootstrap.min.js
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/propeller.min.js
 // @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/popper.min.js
-// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/ZP_config.js?v=0.51
+// @require     https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/ZP_config.js?v=0.52
 // @resource    css_tooltip https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/tooltip.css?v=13
 // @resource    css_bs https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/bootstrap.min.css
 // @resource    css_prop https://raw.githubusercontent.com/MuadDibUsul/ZpovedniceTool/admin/resources/propeller.min.css
@@ -197,7 +197,7 @@ const func={
     },
 
     // pictures
-    func_pictures(): function
+    func_pictures: function ()
     {
         $(".signnick:visible,.signunreg:visible").each(function () {
             var id_with_url = $(this).children("a").attr("href");
