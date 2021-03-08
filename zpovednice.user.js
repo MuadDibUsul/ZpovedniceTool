@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        ZpovedniceTool+adm
-// @version     1.0.3
+// @version     1.0.4
 // @description Tools for zpovednice.cz - the admin version
 // @namespace   zpovednice
 // @author      Muad*Dib
@@ -108,7 +108,7 @@ function makeMenu() {
 const func={
 
 // skryti hlavicky
-    function func_hideHeader()
+    func_hideHeader: function ()
     {
         if (location.pathname.includes('index.php') || $('div#ixleft').length) {
             $('table')[0].remove();
@@ -123,10 +123,10 @@ const func={
                 $('#spodek').css('height', 0);
             }
         }
-    }
+    },
 
     // skrytí zpovedi ignorovanych uzivatelu
-    function func_ignoreNicks()
+    func_ignoreNicks: function ()
     {
         for (var i = 0; i < ignoreNicks.length; i++) {
             if (ignoreNicks[i].length > 0) {
@@ -157,20 +157,20 @@ const func={
                 //    $('td.absoltext:visible:contains('+ ignore[i] +')').css('color',bgcolor);
             }
         }
-    }
+    },
 
     // autologin
-    function func_autologin()
+    func_autologin: function ()
     {
         if ($('#logon').length) {
             $('#logon input[name="nick"]').val(nick);
             $('#logon input[name="heslo"]').val(pass);
             $('#logon input[type="submit"]').click();
         }
-    }
+    },
 
     // zvyrazneni zpovedi v seznamu
-    function func_highlightList()
+    func_highlightList: function ()
     {
         $('#conflist ul').each(function () {
             if ($(this).find("li.c6 img").attr("src") == "grafika/zmarkv.gif") {
@@ -184,20 +184,20 @@ const func={
                 $(this).css("display", "flex");
             }
         });
-    }
+    },
 
     // zvyrazneni zpovedi se jmenem
-    function func_highlightNicks()
+    func_highlightNicks: function ()
     {
         for (var i = 0; i < highlightNicks.length; i++) {
             if (highlightNicks[i].length > 0) {
                 $('td.absoltext:contains(' + highlightNicks[i] + ')').css('background', highlightColors[i]);
             }
         }
-    }
+    },
 
     // pictures
-    function func_pictures()
+    func_pictures(): function
     {
         $(".signnick:visible,.signunreg:visible").each(function () {
             var id_with_url = $(this).children("a").attr("href");
@@ -211,10 +211,10 @@ const func={
             }
             $(this).parent().parent().parent().parent().removeAttr('style');
         });
-    }
+    },
 
     // pictures of deleted users ;-)
-    function func_deletedPictures()
+    func_deletedPictures: function ()
     {
         $("span.redhigh").each(function () {
             if (this.innerText == "NENALEZENO - Profil uživatele byl smazán.") {
@@ -225,10 +225,10 @@ const func={
             }
         });
         $('.signinfo').css('text-align', 'left');
-    }
+    },
 
     // citace
-    function func_quoting()
+    func_quoting: function ()
     {
         var button_text = " cituj ";
         var space_between;
@@ -248,10 +248,10 @@ const func={
                 doQuote(event, text);
             }
         );
-    }
+    },
 
     // rychla odpoved v profilu
-    function func_quickReply()
+    func_quickReply: function ()
     {
         $('a[href*="deletek.php"').each(function () {
             $(this).before('<a href="javascript:void(0);" class="replyToggle">&nbsp;ODPOVĚDĚT</a>&nbsp;&nbsp;');
