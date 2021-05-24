@@ -76,7 +76,7 @@ var ZP_config = function () {
             key = 'ZP/configNames';
             var value = GM_getValue(key);
             if (value){
-              var value = JSON.parse(value);
+              value = JSON.parse(value);
             }
         } else {
             key = config.name + "/" + key;
