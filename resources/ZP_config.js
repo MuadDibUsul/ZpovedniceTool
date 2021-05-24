@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        ZP_config
-// @version     0.54
+// @version     0.56
 // @grant       GM_setValue
 // @grant		GM_getValue
 // @grant       GM_deleteValue
@@ -74,7 +74,10 @@ var ZP_config = function () {
         const s = config.settings[key];
         if (key === 'configNames') {
             key = 'ZP/configNames';
-            var value = JSON.parse(GM_getValue(key));
+            var value = GM_getValue(key);
+            if (value){
+              var value = JSON.parse(value);
+            }
         } else {
             key = config.name + "/" + key;
             var value = GM_getValue(key);
