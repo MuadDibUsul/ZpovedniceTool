@@ -236,6 +236,7 @@ const func={
         $(".absoltext .signnick:visible,.absoltext .signunreg:visible").parent().parent().parent().parent().prepend('<a href="" class="doanswer">' + button_text + '</a>').find(".doanswer").click(
             function (event) {
                 // get text
+                event.preventDefault();
                 var text = $(event.currentTarget).parent().parent().prev().find(".absoltext").text();
                 doQuote(event, text);
             }
@@ -244,6 +245,7 @@ const func={
         $($(".signinfo .signnick:visible,.signinfo .signunreg:visible")[0]).parent().parent().parent().parent().prepend('<a href="" class="doanswer">' + button_text + '</a>').find(".doanswer").click(
             function (event) {
                 // get text
+                event.preventDefault();
                 var text = $(event.currentTarget).parent().parent().parent().prev().find(".conftext").text();
                 doQuote(event, text);
             }

@@ -81,7 +81,7 @@ var ZP_config = function () {
             /*		if (GM_getValue(key + "/type") == "object") {
                         value = JSON.parse(value);
                     }*/
-            if (s.type === 'array') {
+            if (s.type === 'array' && value) {
                 value = value.replace(", ", ",").replace(" ,", ",");
                 value = value.split(',');
             }
