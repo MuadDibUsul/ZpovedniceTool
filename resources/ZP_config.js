@@ -132,14 +132,9 @@ var ZP_config = function () {
         var key, s;
         config.name = config.settings['configName'].value;
         var configs = getValue('configNames');
-        console.log(configs);
-        console.log(config.name);
-        console.log()
         if (!configs.includes(config.name)) {
-            console.log('pushing ' + config.name);
             configs.push(config.name);
             setValue('configNames',configs);
-            console.log(configs);
         }
         for (key in config.settings) {
             s = config.settings[key];
