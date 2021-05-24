@@ -118,6 +118,10 @@ var ZP_config = function () {
             s.value = getValue(key);
             if (s.value == null) {
                 s.value = s.default;
+                if (s.type === 'array' && s.value) {
+                    s.value = s.value.replace(", ", ",").replace(" ,", ",");
+                    s.value = s.value.split(',');
+                }
             }
         }
     }
