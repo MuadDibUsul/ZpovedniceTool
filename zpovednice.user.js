@@ -178,7 +178,6 @@ const func={
         if (location.pathname.includes('detail.php')) {
             for (var i = 0; i < ignoreNicks.length; i++) {
                 if (ignoreNicks[i].length > 0) {
-                    console.log('ignoruji ' + ignoreNicks[i]);
                     var element = $(".signnick:contains('" + ignoreNicks[i] + "')").closest("table").closest("tr").prev().prev();
                     for (var el of element) {
                         if (el && el[0]) el = el[0];
@@ -333,13 +332,11 @@ const func={
             setTimeout(function(){
                 $('.cituj1').click(function(event){
                     event.preventDefault();
-                    console.log('click');
                     var text = $(event.currentTarget).parent().parent().prev().find(".absoltext").text();
                     doQuote(event, text);
                 });
                 $('.cituj2').click(function(event){
                     event.preventDefault();
-                    console.log('click');
                     var text = $(event.currentTarget).parent().parent().prev().find(".conftext").text();
                     doQuote(event, text);
                 });
@@ -485,22 +482,18 @@ function replaceConfLinks(text) {
 
 
 function getvar(varname) {
-    console.log('getting var ' + varname + ' = ' + GM_getValue('zp_inner/' + varname));
     return GM_getValue('zp_inner/' + varname);
 }
 
 function setvar(varname, value = false) {
     if (value) {
-        console.log('setting var ' + varname + ' = ' + value);
         GM_setValue('zp_inner/' + varname, value);
     } else {
-        console.log('deleting var ' + varname + '.');
         GM_deleteValue('zp_inner/' + varname);
     }
 }
 
 function pushContentMarker(id, count) {
-    console.log('pushing ' + id + ' - ' + count);
     const value = {
         id: id,
         count: count,
@@ -518,10 +511,8 @@ function pushContentMarker(id, count) {
 }
 
 function popContentMarker(id){
-    console.log('poping ' + id);
     var contentMarkers = GM_getValue('zp_inner/contentMarkers');
     if (!contentMarkers){
-        console.log('no variable');
         return 0;
     }else{
         contentMarkers = JSON.parse(contentMarkers);
@@ -529,12 +520,10 @@ function popContentMarker(id){
             const value=contentMarkers[i];
             if (value.id == id){
                 const count = value.count;
-                console.log('count=' + count);
                 return count;
             }
         }
     }
-    console.log('not found');
     return 0;
 }
 
