@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        ZpovedniceTool+adm
-// @version     1.0.7
+// @version     1.0.8
 // @description Tools for zpovednice.cz - the admin version
 // @namespace   zpovednice
 // @author      Muad*Dib
@@ -47,24 +47,24 @@ const maxwidth = 120;
 const maxheight = 120;
 const bgcolor = "#11244B";
 
-const nick = config["nick"];
-const pass = config["pass"];
+const nick = config.nick;
+const pass = config.pass;
 
-const quoteTemplate = config['quoteTemplate'];
+const quoteTemplate = config.quoteTemplate;
 
 // nicky, co zvyraznovat:
-const highlightNicks = config['highlightNicks'];
+const highlightNicks = config.highlightNicks;
 
 // k nim prislusne barvy:
-const highlightColors = config['highlightColors'];
+const highlightColors = config.highlightColors;
 
 // nicky, co ignorovat:
-const ignoreNicks = config['ignoreNicks'];
+const ignoreNicks = config.ignoreNicks;
 
 // barvy zvyrazneni v listu
-const highlightListColors = config['highlightListColors'];
+const highlightListColors = config.highlightListColors;
 
-const hideHeader = config['hideHeader'];
+const hideHeader = config.hideHeader;
 
 if (highlightNicks.length != highlightColors.length) {
     alert("chyba v nastaveni skriptu \n Pocet prezdivek v \n highlightNicks \n MUSI byt stejny, jako pocet barev v \n highlightColors!");
@@ -74,21 +74,32 @@ if (highlightNicks.length != highlightColors.length) {
 if (location.hostname.substr(0, 4) == 'www.') {
     location.replace(location.href.replace(/www\./, ''));
 }
+/*
 if (location.hostname.substr(10, 3) == '.eu') {
     location.replace(location.href.replace('.eu', '.cz'));
 }
-
+*/
+/*
+if (location.hostname.substr(10, 3) == '.cz') {
+    location.replace(location.href.replace('.cz', '.eu'));
+}
+*/
 // menu
 if (location.pathname.includes('index.php') || $('div#ixleft').length) {
     $('.boxheadsp')[0].innerText = 'Zpovědnice tool+';
     $($('.boxaround')[3]).html(makeMenu());
+
+    // refresh po minute
+    setTimeout(function() {
+        location.reload();
+    },60000);
 }
 
 function makeMenu() {
     var menu = '<select style="margin-top:9; width: 138px" class="graybutt" value="" id="selectConfig">';
     menu += '<option disabled>KONFIGURACE...</option>';
 
-    const names = config['configNames'];
+    const names = config.configNames;
     const active = GM_getValue('ZP/activeConfigName') ?? (names.length > 0 ? names[0] : 'default');
     for (const name of names) {
         var selected = "";
@@ -125,36 +136,75 @@ const func={
         }
     },
 
+// oznaceni noveho obsahu
+    func_markNewContent: function()
+    {
+        if (location.pathname.includes('detail.php')){
+            const urlParams = new URLSearchParams(location.search);
+            const id = urlParams.get("statusik");
+            var countNew = popContentMarker(id);
+            if (countNew != 0){
+                var hr = document.createElement('hr');
+                hr.id = 'newContentMark';
+                hr.style.position = 'absolute';
+                hr.style.width = '90%';
+                hr.style.color = '#B0D0FF';
+                hr.style.left = '5%';
+                hr.style.borderStyle = 'dashed';
+                hr.style.borderColor = '#B0D0FF';
+                hr.style.marginTop = '-3px';
+                $('td.sectlheader')[countNew].prepend(hr);
+            }
+        }
+    },
+
+// scroll na novy obsah
+    func_scrollNewContent: function()
+    {
+        if (location.pathname.includes('detail.php')){
+            if ($('#newContentMark').length){
+                $(document).ready(function (){
+                    $('html, body').animate({
+                        scrollTop: $('#newContentMark').offset().top - window.visualViewport.height + 42
+                    }, 1000);
+                });
+            }
+        }
+    },
+
     // skrytí zpovedi ignorovanych uzivatelu
     func_ignoreNicks: function ()
     {
-        for (var i = 0; i < ignoreNicks.length; i++) {
-            if (ignoreNicks[i].length > 0) {
-                var element = $(".signnick:contains('" + ignoreNicks[i] + "')").closest("table").closest("tr").prev().prev();
-                for (var el of element) {
-                    if (el && el[0]) el = el[0];
-                    if (el.children && el.children[0].className == "sectlheader") {
-                        $(el).hide();
-                        el = el.nextElementSibling;
-                        while (el != null && el.children[0].className != "sectlheader") {
+        if (location.pathname.includes('detail.php')) {
+            for (var i = 0; i < ignoreNicks.length; i++) {
+                if (ignoreNicks[i].length > 0) {
+                    console.log('ignoruji ' + ignoreNicks[i]);
+                    var element = $(".signnick:contains('" + ignoreNicks[i] + "')").closest("table").closest("tr").prev().prev();
+                    for (var el of element) {
+                        if (el && el[0]) el = el[0];
+                        if (el.children && el.children[0].className == "sectlheader") {
                             $(el).hide();
                             el = el.nextElementSibling;
+                            while (el != null && el.children[0].className != "sectlheader") {
+                                $(el).hide();
+                                el = el.nextElementSibling;
+                            }
                         }
                     }
-                }
-                element = $(".signunreg:contains('" + ignoreNicks[i] + "')").closest("table").closest("tr").prev().prev();
-                for (el of element) {
-                    if (el && el[0]) el = el[0];
-                    if (el.children && el.children[0].className == "sectlheader") {
-                        el.hide();
-                        el = el.nextElementSibling;
-                        while (el != null && el.children[0].className != "sectlheader") {
+                    element = $(".signunreg:contains('" + ignoreNicks[i] + "')").closest("table").closest("tr").prev().prev();
+                    for (el of element) {
+                        if (el && el[0]) el = el[0];
+                        if (el.children && el.children[0].className == "sectlheader") {
                             $(el).hide();
                             el = el.nextElementSibling;
+                            while (el != null && el.children[0].className != "sectlheader") {
+                                $(el).hide();
+                                el = el.nextElementSibling;
+                            }
                         }
                     }
+                    //    $('td.absoltext:visible:contains('+ ignore[i] +')').css('color',bgcolor);
                 }
-                //    $('td.absoltext:visible:contains('+ ignore[i] +')').css('color',bgcolor);
             }
         }
     },
@@ -172,16 +222,37 @@ const func={
     // zvyrazneni zpovedi v seznamu
     func_highlightList: function ()
     {
+        var deleted = false;
         $('#conflist ul').each(function () {
             if ($(this).find("li.c6 img").attr("src") == "grafika/zmarkv.gif") {
                 $(this).css("background", highlightListColors[0]);
                 $(this).css("display", "flex");
                 if ($(this).find("li.c5").html().includes(":")) {
+                    const count = $(this).find("li.c5")[0].childNodes[0].outerText;
+                    if ($(this).find("li.c5")[0].childNodes[1].textContent.replace(':','') == count) {
+                        count = 0;
+                    }
+                    const id = $(this).find('li.c2').find('a')[0].text;
                     $(this).css("background", highlightListColors[1]);
+                    if (!deleted){
+                        GM_deleteValue('zp_inner/contentMarkers');
+                        deleted = true;
+                    }
+                    pushContentMarker(id, count);
                 }
             } else if ($(this).find("li.c5").html().includes(":")) {
+                const count = $(this).find("li.c5")[0].childNodes[0].outerText;
+                if ($(this).find("li.c5")[0].childNodes[1].textContent.replace(':','') == count) {
+                    count = 0;
+                }
+                const id = $(this).find('li.c2').find('a')[0].text;
                 $(this).css("background", highlightListColors[2]);
                 $(this).css("display", "flex");
+                if (!deleted){
+                    GM_deleteValue('zp_inner/contentMarkers');
+                    deleted = true;
+                }
+                pushContentMarker(id, count);
             }
         });
     },
@@ -189,115 +260,142 @@ const func={
     // zvyrazneni zpovedi se jmenem
     func_highlightNicks: function ()
     {
-        for (var i = 0; i < highlightNicks.length; i++) {
-            if (highlightNicks[i].length > 0) {
-                $('td.absoltext:contains(' + highlightNicks[i] + ')').css('background', highlightColors[i]);
+        if (location.pathname.includes('detail.php')) {
+            for (var i = 0; i < highlightNicks.length; i++) {
+                if (highlightNicks[i].length > 0) {
+                    $('td.absoltext:contains(' + highlightNicks[i] + ')').css('background', highlightColors[i]);
+                }
             }
+            $(".signnick:visible,.signunreg:visible").each(function () {
+                $(this).parent().parent().parent().parent().removeAttr('style');
+            });
         }
     },
 
     // pictures
     func_pictures: function ()
     {
-        $(".signnick:visible,.signunreg:visible").each(function () {
-            var id_with_url = $(this).children("a").attr("href");
-            if (id_with_url) { // it can be undefined !
-                var ids = id_with_url.match(/\d+$/g); // last number of url, url is like profil.php?kdo=666
-                if (ids && 0 < ids.length) {
-                    var id = ids[0];
-                    $(this).parent().parent().parent().parent().parent().find(".absoltext").prepend('<img src="foto/id' + id + '.jpg" align="right" border=0 onerror="this.style.display=\'none\'" style="max-height:' + maxheight + ';max-width:' + maxwidth + ';display:block;margin-bottom: -30px;margin-right: -10px;">');
-                    $(this).parent().parent().parent().parent().parent().parent().find(".conftext").prepend('<img src="foto/id' + id + '.jpg" align="right" border=0 onerror="this.style.display=\'none\'" style="max-height:' + maxheight + ';max-width:' + maxwidth + ';display:block;margin-bottom: -30px;margin-right: -10px;">');
+        if (location.pathname.includes('detail.php')) {
+            $(".signnick:visible").each(function () {
+                var id_with_url = $(this).children("a").attr("href");
+                if (id_with_url) { // it can be undefined !
+                    var ids = id_with_url.match(/\d+$/g); // last number of url, url is like profil.php?kdo=666
+                    if (ids && 0 < ids.length) {
+                        var id = ids[0];
+                        $(this).parent().parent().parent().parent().parent().find(".absoltext").prepend('<img src="foto/id' + id + '.jpg" align="right" border=0 onerror="this.style.display=\'none\'" style="max-height:' + maxheight + ';max-width:' + maxwidth + ';display:block;margin-bottom: -30px;margin-right: -10px;">');
+                        $(this).parent().parent().parent().parent().parent().parent().find(".conftext").prepend('<img src="foto/id' + id + '.jpg" align="right" border=0 onerror="this.style.display=\'none\'" style="max-height:' + maxheight + ';max-width:' + maxwidth + ';display:block;margin-bottom: -30px;margin-right: -10px;">');
+                    }
                 }
-            }
-            $(this).parent().parent().parent().parent().removeAttr('style');
-        });
+                $(this).parent().parent().parent().parent().removeAttr('style');
+                if (this.nodeName == 'SPAN'){
+                    $(this).parent().next().css('position','relative').css('right','120px');
+                }else{
+                    $(this).next().css('position','relative').css('right','120px');
+                }
+            });
+            //$('.signinfo').css('position','relative').css('right','120px');
+        }
     },
 
     // pictures of deleted users ;-)
     func_deletedPictures: function ()
     {
-        $("span.redhigh").each(function () {
-            if (this.innerText == "NENALEZENO - Profil uživatele byl smazán.") {
-                $(this).append("<span>");
-                $(this).find('span').append("<br /><br />");
-                let id = window.location.href.split("=")[1];
-                $(this).find('span').append('<img id="photo" src="foto/id' + id + '.jpg" border=0 onerror="this.style.display=\'none\'" style="display:block;margin-left:auto;margin-right:auto;width:50%">');
-            }
-        });
-        $('.signinfo').css('text-align', 'left');
+        if (location.pathname.includes('profil.php')) {
+            $("span.redhigh").each(function () {
+                if (this.innerText == "NENALEZENO - Profil uživatele byl smazán.") {
+                    $(this).append("<span>");
+                    $(this).find('span').append("<br /><br />");
+                    let id = window.location.href.split("=")[1];
+                    $(this).find('span').append('<img id="photo" src="foto/id' + id + '.jpg" border=0 onerror="this.style.display=\'none\'" style="display:block;margin-left:auto;margin-right:auto;width:50%">');
+                }
+            });
+            $('.signinfo').css('text-align', 'left');
+        }
     },
 
     // citace
     func_quoting: function ()
     {
-        var button_text = " cituj ";
-        var space_between;
+        if (location.pathname.includes('detail.php')) {
+            const button_text = " cituj ";
 
-        $(".absoltext .signnick:visible,.absoltext .signunreg:visible").parent().parent().parent().parent().prepend('<a href="" class="doanswer">' + button_text + '</a>').find(".doanswer").click(
-            function (event) {
-                // get text
-                event.preventDefault();
-                var text = $(event.currentTarget).parent().parent().prev().find(".absoltext").text();
-                doQuote(event, text);
-            }
-        );
+            var anchor1 = document.createElement('a');
+            anchor1.text = button_text;
+            anchor1.href = "";
+            anchor1.classList.add("cituj1");
+            var anchor2 = document.createElement('a');
+            anchor2.text = button_text;
+            anchor2.href = "";
+            anchor2.classList.add("cituj2");
 
-        $($(".signinfo .signnick:visible,.signinfo .signunreg:visible")[0]).parent().parent().parent().parent().prepend('<a href="" class="doanswer">' + button_text + '</a>').find(".doanswer").click(
-            function (event) {
-                // get text
-                event.preventDefault();
-                var text = $(event.currentTarget).parent().parent().parent().prev().find(".conftext").text();
-                doQuote(event, text);
-            }
-        );
+            $(".absoltext .signnick:visible,.absoltext .signunreg:visible").parent().closest('td').prepend(anchor1);
+            $($(".signinfo .signnick:visible,.signinfo .signunreg:visible")[0]).parent().parent().parent().parent().prepend(anchor2);
+            setTimeout(function(){
+                $('.cituj1').click(function(event){
+                    event.preventDefault();
+                    console.log('click');
+                    var text = $(event.currentTarget).parent().parent().prev().find(".absoltext").text();
+                    doQuote(event, text);
+                });
+                $('.cituj2').click(function(event){
+                    event.preventDefault();
+                    console.log('click');
+                    var text = $(event.currentTarget).parent().parent().prev().find(".conftext").text();
+                    doQuote(event, text);
+                });
+            });
+
+        }
     },
 
     // rychla odpoved v profilu
     func_quickReply: function ()
     {
-        $('a[href*="deletek.php"').each(function () {
-            $(this).before('<a href="javascript:void(0);" class="replyToggle">&nbsp;ODPOVĚDĚT</a>&nbsp;&nbsp;');
+        if (location.pathname.includes('profil.php')) {
+            $('a[href*="deletek.php"').each(function () {
+                $(this).before('<a href="javascript:void(0);" class="replyToggle">&nbsp;ODPOVĚDĚT</a>&nbsp;&nbsp;');
 
-            var proID = "" + $(this).parent().parent().parent().parent().next().children('a').attr('href');
-            var proKoho = proID.replace(/\D/g, '');
-            var profilID = $('input[name="odid"]').attr('value');
+                var proID = "" + $(this).parent().parent().parent().parent().next().children('a').attr('href');
+                var proKoho = proID.replace(/\D/g, '');
+                var profilID = $('input[name="odid"]').attr('value');
 
-            var text = $(this).parent().parent().parent().parent().next().next().next();
+                var text = $(this).parent().parent().parent().parent().next().next().next();
 
-            var html = '';
+                var html = '';
 
-            html += '<div class="fastReply" style="display: none; margin-bottom: 5px;">';
-            html += '<center><form method="post" action="kontrolk.php" target="_blank">';
-            html += '<input type=hidden NAME=proid VALUE="' + proKoho + '">';
-            html += '<input type=hidden NAME=odid VALUE="' + profilID + '">';
-            html += '<textarea class="collect" rows="5" cols="80" name="body"></textarea>';
-            html += '<input type="submit" value="Odeslat zápis" class="replyMessage" />';
-            html += '</form></center>';
-            html += '</div>';
+                html += '<div class="fastReply" style="display: none; margin-bottom: 5px;">';
+                html += '<center><form method="post" action="kontrolk.php" target="_blank">';
+                html += '<input type=hidden NAME=proid VALUE="' + proKoho + '">';
+                html += '<input type=hidden NAME=odid VALUE="' + profilID + '">';
+                html += '<textarea class="collect" rows="5" cols="80" name="body"></textarea>';
+                html += '<input type="submit" value="Odeslat zápis" class="replyMessage" />';
+                html += '</form></center>';
+                html += '</div>';
 
-            text.after(html);
-        });
+                text.after(html);
+            });
 
-        $('.replyMessage').click(function () {
-            $('.replyToggle', $(this).parent().parent().parent().parent()).hide();
-            $(this).parent().parent().parent().hide();
-        });
-        $('.replyToggle').click(function () {
-            var div = $(this).parent().parent().parent().parent().parent().children('.fastReply');
+            $('.replyMessage').click(function () {
+                $('.replyToggle', $(this).parent().parent().parent().parent()).hide();
+                $(this).parent().parent().parent().hide();
+            });
+            $('.replyToggle').click(function () {
+                var div = $(this).parent().parent().parent().parent().parent().children('.fastReply');
 
-            var area = $('textarea', div);
+                var area = $('textarea', div);
 
-            div.toggle();
-            if (div.css('display') != 'none') {
+                div.toggle();
+                if (div.css('display') != 'none') {
 
-                setTimeout(function () {
-                    area.focus();
+                    setTimeout(function () {
+                        area.focus();
 
-                }, 100);
-            } else {
-                $(this).children('img').attr('src', imageArrowRight);
-            }
-        });
+                    }, 100);
+                } else {
+                    $(this).children('img').attr('src', imageArrowRight);
+                }
+            });
+        }
     }
 
 }
@@ -305,6 +403,7 @@ const func={
 func.func_ignoreNicks();
 func.func_highlightNicks()
 func.func_deletedPictures()
+
 
 for (const key in config){
     if (key.startsWith('mod_') && config[key]){
@@ -314,7 +413,7 @@ for (const key in config){
 }
 
 var page = location.pathname.replace(/^\/*/, '').replace(/^admin\/|\/*$|\.php$/g, '');
-var link = location.hostname + '/detail.php?statusik=';
+var link = '/detail.php?statusik=';
 
 // redirect after form processing
 var form = document.forms.namedItem('formular');
@@ -327,6 +426,12 @@ if (page == 'souhlasr' && typeof form != 'undefined') {
 
 // fix the insane title
 document.title = document.title = 'Zpovědnice - ' + nick + ' +';
+if (location.pathname.includes('detail.php')) {
+    document.title = $('.confheader')[0].innerText;
+}
+if (location.pathname.includes('profil.php')) {
+    document.title = $('.profheader')[0].innerText;
+}
 
 // open all links in the current window
 /*
@@ -347,9 +452,6 @@ if (['detail', 'profil'].indexOf(page) != -1) {
     );
 }
 
-
-
-
 function doQuote(event, text) {
     var nickname = $(event.currentTarget).parent().find(".signunreg").text().trim();
     if (!nickname) {
@@ -357,10 +459,11 @@ function doQuote(event, text) {
     }
     text = quoteTemplate.replace('{text}', text).replace('{nick}', nickname);
     // insert text
+    var space_between;
     if ($("textarea").val().length > 1) {
-        const space_between = "\n\n"; // n-th reply
+        space_between = "\n\n"; // n-th reply
     } else {
-        const space_between = ""; // first reply
+        space_between = ""; // first reply
     }
     $("textarea").val($("textarea").val() + space_between + text + "\n\n");
 
@@ -394,6 +497,45 @@ function setvar(varname, value = false) {
         console.log('deleting var ' + varname + '.');
         GM_deleteValue('zp_inner/' + varname);
     }
+}
+
+function pushContentMarker(id, count) {
+    console.log('pushing ' + id + ' - ' + count);
+    const value = {
+        id: id,
+        count: count,
+        time: new Date().valueOf()
+    };
+    var contentMarkers = GM_getValue('zp_inner/contentMarkers');
+    if (!contentMarkers){
+        contentMarkers = [];
+    }else{
+        contentMarkers = JSON.parse(contentMarkers);
+    }
+    contentMarkers.push(value);
+    var jsonValue = JSON.stringify(contentMarkers);
+    GM_setValue("zp_inner/contentMarkers",jsonValue);
+}
+
+function popContentMarker(id){
+    console.log('poping ' + id);
+    var contentMarkers = GM_getValue('zp_inner/contentMarkers');
+    if (!contentMarkers){
+        console.log('no variable');
+        return 0;
+    }else{
+        contentMarkers = JSON.parse(contentMarkers);
+        for (var i=0; i<contentMarkers.length; i++){
+            const value=contentMarkers[i];
+            if (value.id == id){
+                const count = value.count;
+                console.log('count=' + count);
+                return count;
+            }
+        }
+    }
+    console.log('not found');
+    return 0;
 }
 
 function func_config() {
@@ -434,10 +576,21 @@ function func_config() {
             type: "array",
             default: ""
         },
-
+        mod_markNewContent: {
+            label: "Označit nový obsah",
+            description: "V dříve navštívených zpovědích oddělí čárou nové příspěvky. (Evidují se pouze zpovědi navštívené za posledních 30 dní)",
+            type: "checkbox",
+            default: false
+        },
+        mod_scrollNewContent: {
+            label: "Scrollovat na nový obsah",
+            description: "Po otevření zpovědi rovnou odscrolluje na první z nových rozhřešení.",
+            type: "checkbox",
+            default: false
+        },
         mod_hideHeader: {
             label: "Skrytí headeru",
-            description: "Skryje logo Zpovědnice.",
+            description: "Skryje logo Zpovědnice. A jo, vím o tom, že to nefunguje úplně ideálně :-(",
             type: "checkbox",
             default: false
         },
@@ -471,13 +624,13 @@ function func_config() {
         },
         mod_highlightList: {
             label: "Obarvit seznam",
-            description: "Obarví navštívené / změnené zpovědi v seznamu.",
+            description: "Obarví navštívené / změněné zpovědi v seznamu.",
             type: "checkbox",
             default: true
         },
         highlightListColors: {
             label: "Barvy pro seznam",
-            description: "Zadej 3 barvy oddělené čárkou pro zpověď do které jsi přispěl, zpověď do které jsi přispěl a někdo do ní přispěl po tobě, zpověď na kterou ses se díval a něco se tam změnilo.",
+            description: "Zadej 3 barvy oddělené čárkou pro zpověď do které jsi přispěl, zpověď do které jsi přispěl a někdo do ní přispěl po tobě, zpověď na kterou ses díval a něco se tam změnilo.",
             type: "array",
             default: "darkblue, blue, darkslategrey"
         },
@@ -513,12 +666,36 @@ $.expr[":"].contains = $.expr.createPseudo(function (arg) {
     };
 });
 
+
+//fix smiles
+$('img[alt="Smajlík"]').css('bottom','30px').css('position','relative').css('margin-left','25px');
+$('img[alt="Smajlík"]').parent().each(function(){
+    const smajl = $(this.children[0]).detach();
+    smajl.appendTo(this);
+    this.innerHTML = this.innerHTML.replace(nick,'');
+    this.innerHTML = '<div style="height:26px">'+this.innerHTML+'</div>';
+});
+
+//fix vypln prezdivku
+if (location.pathname.includes('profil.php')) {
+    if ($('input[name=odkoho]').length > 1){
+        $('input[name=odkoho]')[0].remove();
+    }
+}
+
+//auto navrat po odeslani vzkazu
+if (location.pathname.includes('kontrolk.php')) {
+    if ($('.confheader')[0].innerText != "Bohužel !!"){
+        location.replace('index.php?rekni=Vzkaz%20byl%20uspesne%20odeslan.%20Teda%20snad...');
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // admin part>
 
-const adminSecret = "";
-var day = (new Date()).getUTCDate();
-if ((new Date()).getUTCHours() == 23) day++;
+const adminSecret = "cjoker";
+var day = (new Date()).getDate();
+//if ((new Date()).getUTCHours() == 23) day++;
 if (("" + day).length == 1) day = "0" + day;
 var adminPass = "" + day + adminSecret+'@';
 
@@ -554,7 +731,7 @@ $('a[href*="prehledvip.php?tr=p&"]').each(function () {
     ipspan.setAttribute('style', 'user-select: all; cursor: pointer;');
     ipspan.setAttribute('onclick', 'document.execCommand("copy")');
     ipspan.setAttribute('tooltip', "click = zkopírovat do schránky");
-    anchor.setAttribute('href', window.location.origin + '/adm.php?ippa=' + ip + '&action=a_ip');
+    anchor.setAttribute('href', '/adm.php?ippa=' + ip + '&action=a_ip');
     anchor.setAttribute('target', '_blank');
     anchor.innerHTML = ' N ';
     anchor.setAttribute('tooltip', "novej admin");
@@ -579,7 +756,7 @@ $('a[href*="prehledvip.php?tr=i&"]').each(function () {
     idspan.setAttribute('style', 'user-select: all; cursor: pointer;');
     idspan.setAttribute('onclick', 'document.execCommand("copy")');
     idspan.setAttribute('tooltip', "click = zkopírovat do schránky");
-    anchor.setAttribute('href', location.hostname + '/adm.php?ida=' + id + '&action=a_id');
+    anchor.setAttribute('href', '/adm.php?ida=' + id + '&action=a_id');
     anchor.setAttribute('target', '_blank');
     anchor.innerHTML = ' N ';
     anchor.setAttribute('tooltip', "novej admin");
@@ -604,12 +781,15 @@ $('a[href*="smazat.php?statusik="]').each(function () {
 if (location.pathname.includes('zrus_nick_vsude.php')) {
     $('input[name=hesliko]').val(adminSecret);
 }
+if (location.pathname.includes('blokace_nicku_7.php')) {
+    $('input[name=hesliko]').val(adminSecret);
+}
 
 // presmerovani na login do adm pri pristupu bez prihlaseni
 if (location.pathname.includes('adm.php')) {
     if ($('font:contains("NEOPRAVNENY VSTUP")').length > 0) {
         setvar('admurl', location.href);
-        location.replace(window.location.hostname + '/adnew.php');
+        location.replace(window.location.origin + '/adnew.php');
     } else {
         var url = getvar('admurl');
         if (url.length > 0) {
