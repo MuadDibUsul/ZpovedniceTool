@@ -241,7 +241,7 @@ const func={
                     pushContentMarker(id, count);
                 }
             } else if ($(this).find("li.c5").html().includes(":")) {
-                const count = $(this).find("li.c5")[0].childNodes[0].outerText;
+                var count = $(this).find("li.c5")[0].childNodes[0].outerText;
                 if ($(this).find("li.c5")[0].childNodes[1].textContent.replace(':','') == count) {
                     count = 0;
                 }
