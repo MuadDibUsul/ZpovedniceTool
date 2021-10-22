@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        ZpovedniceTool+adm
-// @version     1.0.8
+// @version     1.0.9
 // @description Tools for zpovednice.cz - the admin version
 // @namespace   zpovednice
 // @author      Muad*Dib
@@ -96,7 +96,7 @@ if (location.pathname.includes('index.php') || $('div#ixleft').length) {
 }
 
 function makeMenu() {
-    var menu = '<select style="margin-top:9; width: 138px" class="graybutt" value="" id="selectConfig">';
+    var menu = '<select style="margin-top:9px; width: 138px" class="graybutt" value="" id="selectConfig">';
     menu += '<option disabled>KONFIGURACE...</option>';
 
     const names = config.configNames;
@@ -108,9 +108,9 @@ function makeMenu() {
     }
 
     menu += '</select>';
-    menu += '<input type="submit" style="margin-top:9; width: 138px" class="graybutt open-config" value="NASTAVENÍ">';
-    menu += '<input type="submit" style="margin-top:9; width: 138px" class="graybutt open-config-admin" value="ADMIN NASTAVENÍ">';
-    menu += '<input type="submit" style="margin-top:9; width: 138px" class="graybutt open-about" value="ABOUT - v' + GM_info.script.version + '">';
+    menu += '<input type="submit" style="margin-top:9px; width: 138px" class="graybutt open-config" value="NASTAVENÍ">';
+    menu += '<input type="submit" style="margin-top:9px; width: 138px" class="graybutt open-config-admin" value="ADMIN NASTAVENÍ">';
+    menu += '<input type="submit" style="margin-top:9px; width: 138px" class="graybutt open-about" value="ABOUT - v' + GM_info.script.version + '">';
     menu = '<div class="boxbackgr">' + menu + '</div>';
     return menu;
 }
@@ -178,6 +178,7 @@ const func={
         if (location.pathname.includes('detail.php')) {
             for (var i = 0; i < ignoreNicks.length; i++) {
                 if (ignoreNicks[i].length > 0) {
+                    console.log('ignoruji ' + ignoreNicks[i]);
                     var element = $(".signnick:contains('" + ignoreNicks[i] + "')").closest("table").closest("tr").prev().prev();
                     for (var el of element) {
                         if (el && el[0]) el = el[0];
@@ -227,7 +228,7 @@ const func={
                 $(this).css("background", highlightListColors[0]);
                 $(this).css("display", "flex");
                 if ($(this).find("li.c5").html().includes(":")) {
-                    const count = $(this).find("li.c5")[0].childNodes[0].outerText;
+                    var count = $(this).find("li.c5")[0].childNodes[0].outerText;
                     if ($(this).find("li.c5")[0].childNodes[1].textContent.replace(':','') == count) {
                         count = 0;
                     }
@@ -332,11 +333,13 @@ const func={
             setTimeout(function(){
                 $('.cituj1').click(function(event){
                     event.preventDefault();
+                    console.log('click');
                     var text = $(event.currentTarget).parent().parent().prev().find(".absoltext").text();
                     doQuote(event, text);
                 });
                 $('.cituj2').click(function(event){
                     event.preventDefault();
+                    console.log('click');
                     var text = $(event.currentTarget).parent().parent().prev().find(".conftext").text();
                     doQuote(event, text);
                 });
@@ -482,18 +485,22 @@ function replaceConfLinks(text) {
 
 
 function getvar(varname) {
+    console.log('getting var ' + varname + ' = ' + GM_getValue('zp_inner/' + varname));
     return GM_getValue('zp_inner/' + varname);
 }
 
 function setvar(varname, value = false) {
     if (value) {
+        console.log('setting var ' + varname + ' = ' + value);
         GM_setValue('zp_inner/' + varname, value);
     } else {
+        console.log('deleting var ' + varname + '.');
         GM_deleteValue('zp_inner/' + varname);
     }
 }
 
 function pushContentMarker(id, count) {
+    console.log('pushing ' + id + ' - ' + count);
     const value = {
         id: id,
         count: count,
@@ -511,8 +518,10 @@ function pushContentMarker(id, count) {
 }
 
 function popContentMarker(id){
+    console.log('poping ' + id);
     var contentMarkers = GM_getValue('zp_inner/contentMarkers');
     if (!contentMarkers){
+        console.log('no variable');
         return 0;
     }else{
         contentMarkers = JSON.parse(contentMarkers);
@@ -520,12 +529,54 @@ function popContentMarker(id){
             const value=contentMarkers[i];
             if (value.id == id){
                 const count = value.count;
+                console.log('count=' + count);
                 return count;
             }
         }
     }
+    console.log('not found');
     return 0;
 }
+
+function pushVztah(selfID, id, time, section) {
+    console.log('pushing ' + id + ' - ' + time);
+    const value = {
+        id: id,
+        section: section,
+        time: time
+    };
+    var vztahy = GM_getValue('zp_inner/vztahy/'+selfID);
+    if (!vztahy){
+        vztahy = [];
+    }else{
+        vztahy = JSON.parse(vztahy);
+    }
+    vztahy.push(value);
+    var jsonValue = JSON.stringify(vztahy);
+    GM_setValue("zp_inner/vztahy/"+selfID,jsonValue);
+}
+
+function popVztah(selfID, id, section){
+    console.log('poping ' + id);
+    var vztahy = GM_getValue('zp_inner/vztahy/'+selfID);
+    if (!vztahy){
+        console.log('no variable');
+        return 0;
+    }else{
+        vztahy = JSON.parse(vztahy);
+        for (var i=0; i<vztahy.length; i++){
+            const value=vztahy[i];
+            if (value.id == id && value.section == section){
+                const time = value.time;
+                console.log('time=' + time);
+                return time;
+            }
+        }
+    }
+    console.log('not found');
+    return 0;
+}
+
 
 function func_config() {
     ZP_config.init('Zpovědnice tool+', {
@@ -677,6 +728,37 @@ if (location.pathname.includes('kontrolk.php')) {
     if ($('.confheader')[0].innerText != "Bohužel !!"){
         location.replace('index.php?rekni=Vzkaz%20byl%20uspesne%20odeslan.%20Teda%20snad...');
     }
+}
+
+//plaminky
+if (location.pathname.includes('profil.php') && location.search.includes('vztahy=1')){
+    const selfID = getKdo(location.search);
+    for (var section=0;section<5;section++){
+        const rows = $('table.boxaround > tbody > tr:eq('+section+') tr');
+        if (rows.length < 3){
+            continue;
+        }
+        for (var i=1;i<rows.length-1;i++){
+            const tds = $('table.boxaround > tbody > tr:eq('+section+') tr:eq('+i+') td');
+            if (tds.length != 5){
+                continue;
+            }
+            const kdo = getKdo(tds[1].innerHTML);
+            const time = popVztah(selfID,kdo,section);
+            if (time != 0){
+                $(tds[1]).append(' ... - ('+time+')');
+            } else {
+                const newTime = new Date().toLocaleDateString();
+                pushVztah(selfID,kdo,newTime,section);
+                $(tds[1]).append(' ... - ('+newTime+') - !!! NEW !!!');
+            }
+        }
+    }
+}
+
+function getKdo(url){
+    const kdo = url.match('[?&]kdo=([0-9]+)','g')[1];
+    return kdo;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
